@@ -77,7 +77,7 @@ class FramesCache(vs_object, Generic[NodeT, FrameT], dict[int, FrameT]):
 
     def __getitem__(self, __key: int) -> FrameT:
         if __key not in self:
-            self.add_frame(__key, self.clip.get_frame(__key))
+            self.add_frame(__key, cast(FrameT, self.clip.get_frame(__key)))
 
         return super().__getitem__(__key)
 
@@ -86,7 +86,9 @@ class FramesCache(vs_object, Generic[NodeT, FrameT], dict[int, FrameT]):
             f.close()
 
         self.clear()
-        self.clip = None
+
+        if not TYPE_CHECKING:
+            self.clip = None
 
 
 class NodeFramesCache(vs_object, dict[NodeT, FramesCache[NodeT, FrameT]]):
