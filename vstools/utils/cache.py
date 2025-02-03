@@ -82,6 +82,9 @@ class FramesCache(vs_object, Generic[NodeT, FrameT], dict[int, FrameT]):
         return super().__getitem__(__key)
 
     def __vs_del__(self, core_id: int) -> None:
+        for f in self.values():
+            f.close()
+
         self.clear()
         self.clip = None
 
