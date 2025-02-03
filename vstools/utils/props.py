@@ -78,9 +78,15 @@ class _get_prop:
         if isinstance(obj, MutableMapping):
             props = obj
         elif isinstance(obj, vs.RawNode):
-            num = 0 
-            with obj.get_frame(num) as f:
-                props = self.cache.setdefault((obj, num), f.props.copy())
+            props_cached = self.cache.get((obj, 0), None)
+
+            if props_cached is not None:
+                props = props_cached
+            else:
+                with obj.get_frame(0) as f:
+                    props = f.props.copy()
+
+                self.cache[(obj, 0)] = props
         else:
             props = obj.props
 
