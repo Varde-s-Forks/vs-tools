@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Any, Callable, MutableMapping, Literal, TypeVar, overload
-from typing import cast as t_cast
 
 import vapoursynth as vs
 
@@ -74,16 +73,14 @@ class _get_prop:
         :raises FramePropError:     ``key`` is not found in props.
         :raises FramePropError:     Returns a prop of the wrong type.
         """
+        props: MutableMapping[str, Any]
 
         if isinstance(obj, MutableMapping):
             props = obj
         elif isinstance(obj, vs.RawNode):
             num = 0 
             with obj.get_frame(num) as f:
-                props = t_cast(
-                    vs.FrameProps,
-                    self.cache.setdefault((obj, num), f.props.copy())
-                )
+                props = self.cache.setdefault((obj, num), f.props.copy())
         else:
             props = obj.props
 
