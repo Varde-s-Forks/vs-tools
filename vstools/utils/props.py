@@ -87,19 +87,18 @@ class _get_prop:
         prop: Any = MISSING
 
         try:
-            try:
+            if isinstance(key, str):
                 prop = props[key]
-            except Exception:
-                if isinstance(key, type) and issubclass(key, PropEnum):
-                    key = key.prop_key
-                else:
-                    key = str(key)
+            elif isinstance(key, type) and issubclass(key, PropEnum):
+                key = key.prop_key
+            else:
+                key = str(key)
 
-                prop = props[key]
+            prop = props[key]
 
             if not isinstance(prop, t):
                 if issubclass(t, str) and isinstance(prop, bytes):
-                    return prop.decode('utf-8')
+                    return prop.decode('utf-8')  # type: ignore[return-value]
                 raise TypeError
 
             if cast is None:
@@ -113,14 +112,14 @@ class _get_prop:
             func = func or get_prop
 
             if isinstance(e, KeyError) or prop is MISSING:
-                e = FramePropError(func, key, 'Key {key} not present in props!')  # type: ignore
+                e = FramePropError(func, str(key), 'Key {key} not present in props!')
             elif isinstance(e, TypeError):
                 e = FramePropError(
-                    func, key, 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',  # type: ignore
+                    func, str(key), 'Key {key} did not contain expected type: Expected {t} got {prop_t}!',
                     t=t, prop_t=type(prop)
                 )
             else:
-                e = FramePropError(func, key)  # type: ignore
+                e = FramePropError(func, str(key))
 
             raise e
 
