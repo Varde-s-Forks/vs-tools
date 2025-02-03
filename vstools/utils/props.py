@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, TypeVar, overload
+from typing import Any, Callable, MutableMapping, Literal, TypeVar, overload
+from typing import cast as t_cast
 
 import vapoursynth as vs
 
@@ -78,13 +79,17 @@ class _get_prop:
         :raises FramePropError:     Returns a prop of the wrong type.
         """
 
-        if isinstance(obj, vs.RawFrame):
-            props = obj.props
-        elif isinstance(obj, vs.RawNode):
-            with obj.get_frame(0) as frame:
-                props = frame.props.copy()
-        else:
+        if isinstance(obj, MutableMapping):
             props = obj
+        elif isinstance(obj, vs.RawNode):
+            num = 0 
+            with obj.get_frame(num) as f:
+                props = t_cast(
+                    vs.FrameProps,
+                    self.cache.setdefault((obj, num), f.props.copy())
+                )
+        else:
+            props = obj.props
 
         prop: Any = MISSING
 
