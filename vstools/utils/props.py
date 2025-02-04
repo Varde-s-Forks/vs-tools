@@ -78,11 +78,9 @@ class _get_prop:
         if isinstance(obj, MutableMapping):
             props = obj
         elif isinstance(obj, vs.RawNode):
-            props_cached = self.cache.get((obj, 0), None)
-
-            if props_cached is not None:
-                props = props_cached
-            else:
+            try:
+                props = self.cache[(obj, 0)]
+            except KeyError:
                 with obj.get_frame(0) as f:
                     props = f.props.copy()
 
